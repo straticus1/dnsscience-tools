@@ -1,0 +1,9 @@
+[submodule "submodules/dnsnet"]
+	path = submodules/dnsnet
+	url = https://github.com/straticus1/dnsscience-dnsnet.git
+[submodule "submodules/globaldetect"]
+	path = submodules/globaldetect
+	url = https://github.com/straticus1/dnsscience-globalconnect.git
+[submodule "submodules/rancid-ng"]
+	path = submodules/rancid-ng
+	url = https://github.com/straticus1/ipscience-rancid-ng.git
