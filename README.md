@@ -16,6 +16,7 @@ DNSScience Tools is a unified repository containing the complete suite of networ
 | **DNSNet** | Enterprise DNS/DHCP/IPAM management toolkit | [README](submodules/dnsnet/README.md) |
 | **GlobalDetect** | ISP network engineering utilities | [README](submodules/globaldetect/README.md) |
 | **RANCID-NG** | Network config backup & change tracking | [README](submodules/rancid-ng/README.md) |
+| **CoreDNS Toolkit** | Enterprise DNS resolver management for CoreDNS & Unbound | [README](submodules/coredns/README.md) |
 
 ## Quick Start
 
@@ -35,6 +36,7 @@ dnsscience-util --help
 dnsnet --help
 globaldetect --help
 rancid-ng --help
+dnsctl --help
 ```
 
 ## Installation Options
@@ -50,6 +52,7 @@ sudo ./install-all.sh --all --system
 ./install-all.sh --dnsnet --venv
 ./install-all.sh --globaldetect --venv
 ./install-all.sh --rancid --venv
+./install-all.sh --coredns --venv
 
 # Create symlinks in /usr/local/bin
 ./install-all.sh --all --symlink
@@ -178,6 +181,72 @@ panlogin fw.example.com       # Palo Alto
 - Palo Alto PAN-OS, Fortinet FortiGate, F5 BIG-IP
 - Cisco IronPort, Proofpoint, BlueCat DDI, Infoblox NIOS
 
+### CoreDNS Toolkit
+
+Enterprise-grade DNS resolver management for Kubernetes and standalone environments.
+
+```bash
+# Check resolver status
+dnsctl service status
+
+# Query with tracing
+dnsctl query trace example.com
+
+# Compare CoreDNS vs Unbound performance
+dnsctl compare run example.com --resolver1 coredns --resolver2 unbound
+
+# Plan migration from Unbound to CoreDNS
+dnsctl migrate plan --source unbound --target coredns
+
+# Cache operations with statistics
+dnsctl cache stats
+dnsctl cache flush example.com
+
+# Kubernetes pod testing
+dnsctl k8s test-pod example.com
+
+# Health monitoring with Prometheus metrics
+dnsctl health watch
+```
+
+**Why CoreDNS Toolkit?**
+
+Built from real-world migration experience, this toolkit addresses the challenge of moving from Unbound to CoreDNS in Kubernetes environments. While Unbound is a solid resolver, CoreDNS provides:
+
+- **Better K8s Integration** - Native Kubernetes service discovery
+- **Higher Performance** - Optimized for containerized environments
+- **Plugin Ecosystem** - Extensive functionality via plugins
+- **Hot Reload** - Configuration changes without downtime
+- **Prometheus Native** - Built-in metrics and monitoring
+
+**Key Features:**
+
+- **Bidirectional Migration** - CoreDNS ↔ Unbound with full validation
+- **Shadow Mode** - Run both resolvers in parallel to compare behavior
+- **Six Interface Options** - CLI, REST API, Web UI, Admin Panel, MCP Server, n8n Nodes
+- **Configuration Converter** - Automatic translation between CoreDNS and Unbound configs
+- **Performance Benchmarking** - Compare query latency, cache efficiency, memory usage
+- **Cache Management** - Flush, purge, inspect with detailed statistics
+- **MCP Server Integration** - AI/LLM workflow automation via Model Context Protocol
+
+**Deployment Options:**
+
+```bash
+# Docker Compose (includes CoreDNS, Unbound, Prometheus, Grafana)
+cd submodules/coredns/docker
+docker-compose up -d
+
+# Kubernetes Helm Chart
+helm install dnsscience ./submodules/coredns/k8s/helm/dnsscience-toolkit \
+  --namespace dns-system \
+  --create-namespace
+
+# Start REST API server
+dnsctl-api
+```
+
+See [CoreDNS Integration Guide](docs/COREDNS-INTEGRATION.md) for migration workflows and best practices.
+
 ## Additional Tools
 
 | Tool | Description |
@@ -207,7 +276,8 @@ dnsscience-tools/
 ├── submodules/              # Git submodules
 │   ├── dnsnet/              # DNSNet toolkit
 │   ├── globaldetect/        # GlobalDetect utilities
-│   └── rancid-ng/           # RANCID-NG
+│   ├── rancid-ng/           # RANCID-NG
+│   └── coredns/             # CoreDNS Toolkit
 └── ansible/                 # Ansible playbooks
 ```
 

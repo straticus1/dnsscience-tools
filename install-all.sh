@@ -38,6 +38,7 @@ Options:
     --dnsnet        Install only DNSNet
     --globaldetect  Install only GlobalDetect
     --rancid        Install only RANCID-NG
+    --coredns       Install only CoreDNS Toolkit
     --help          Show this help message
 
 Examples:
@@ -139,6 +140,25 @@ install_rancid() {
     log_success "RANCID-NG installed"
 }
 
+install_coredns() {
+    log_info "Installing CoreDNS Toolkit..."
+    cd "$SCRIPT_DIR/submodules/coredns"
+
+    if [[ ! -f "pyproject.toml" ]] && [[ ! -f "setup.py" ]]; then
+        log_warn "CoreDNS Toolkit setup files not found. Skipping."
+        return
+    fi
+
+    if [[ -n "$USE_VENV" ]]; then
+        pip install -e .
+    elif [[ -n "$SYSTEM_INSTALL" ]]; then
+        sudo pip install .
+    else
+        pip install --user -e .
+    fi
+    log_success "CoreDNS Toolkit installed"
+}
+
 create_symlinks() {
     log_info "Creating symlinks in /usr/local/bin..."
 
@@ -179,6 +199,17 @@ create_symlinks() {
         done
         log_success "Linked RANCID-NG tools"
     fi
+
+    # CoreDNS Toolkit
+    if [[ -d "$SCRIPT_DIR/submodules/coredns" ]]; then
+        for cmd in dnsctl dnsctl-api dnsctl-mcp; do
+            local cmd_path=$(find "$SCRIPT_DIR/submodules/coredns" -name "$cmd" -type f 2>/dev/null | head -1)
+            if [[ -n "$cmd_path" ]]; then
+                sudo ln -sf "$cmd_path" "/usr/local/bin/$cmd"
+            fi
+        done
+        log_success "Linked CoreDNS Toolkit"
+    fi
 }
 
 print_summary() {
@@ -208,6 +239,11 @@ print_summary() {
     echo "    jlogin           - Juniper interactive login"
     echo "    (and more vendor-specific login scripts)"
     echo ""
+    echo "  CoreDNS Toolkit:"
+    echo "    dnsctl           - DNS resolver management CLI"
+    echo "    dnsctl-api       - REST API server"
+    echo "    dnsctl-mcp       - MCP server for AI/LLM integration"
+    echo ""
 
     if [[ -n "$USE_VENV" ]]; then
         echo "Virtual environment: $VENV_DIR"
@@ -227,6 +263,7 @@ INSTALL_DNSSCIENCE=""
 INSTALL_DNSNET=""
 INSTALL_GLOBALDETECT=""
 INSTALL_RANCID=""
+INSTALL_COREDNS=""
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -241,6 +278,7 @@ while [[ $# -gt 0 ]]; do
         --dnsnet) INSTALL_DNSNET=1; INSTALL_ALL="" ;;
         --globaldetect) INSTALL_GLOBALDETECT=1; INSTALL_ALL="" ;;
         --rancid) INSTALL_RANCID=1; INSTALL_ALL="" ;;
+        --coredns) INSTALL_COREDNS=1; INSTALL_ALL="" ;;
         *) log_error "Unknown option: $1"; show_help; exit 1 ;;
     esac
     shift
@@ -263,11 +301,13 @@ if [[ -n "$INSTALL_ALL" ]]; then
     install_dnsnet
     install_globaldetect
     install_rancid
+    install_coredns
 else
     [[ -n "$INSTALL_DNSSCIENCE" ]] && install_dnsscience_util
     [[ -n "$INSTALL_DNSNET" ]] && install_dnsnet
     [[ -n "$INSTALL_GLOBALDETECT" ]] && install_globaldetect
     [[ -n "$INSTALL_RANCID" ]] && install_rancid
+    [[ -n "$INSTALL_COREDNS" ]] && install_coredns
 fi
 
 if [[ -n "$CREATE_SYMLINKS" ]]; then

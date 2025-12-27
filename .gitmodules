@@ -7,3 +7,6 @@
 [submodule "submodules/rancid-ng"]
 	path = submodules/rancid-ng
 	url = https://github.com/straticus1/ipscience-rancid-ng.git
+[submodule "submodules/coredns"]
+	path = submodules/coredns
+	url = https://github.com/straticus1/dnsscience-toolkit.git
